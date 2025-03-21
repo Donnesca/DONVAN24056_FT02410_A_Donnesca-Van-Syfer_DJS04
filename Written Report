@@ -1,0 +1,45 @@
+### Discussion and Reflection
+
+## Rationale Behind Refactoring Decisions:
+
+- Configuration Object (config):
+  - Rationale: To centralize configurable values. This makes it easier to modify parameters like BOOKS_PER_PAGE without searching through the entire codebase.
+  - Benefits: It Improves maintainability and reduces the risk of errors when changing configuration.
+- Data Abstraction (getBooks function):
+  - Rationale: To separate data retrieval and filtering logic from the UI. This allows for easier testing and modification of data handling.
+  - Benefits: This function encapsulates the book filtering logic. If in the future, the data source changes, or the filtering logic changes, only this function needs to be modified.
+- UI Component Abstraction (createBookPreview, displayBooks, populateDropdown functions):
+  - Rationale: To create reusable UI components, reducing code duplication and improving consistency.
+  - Benefits:
+    - createBookPreview: Simplifies the creation of book preview elements, making it easier to modify their appearance or behavior.
+    - displayBooks: Handles the logic for rendering a range of books, making pagination and search result display more efficient.
+    - populateDropdown: Handles the population of dropdown menus. If the data source of the dropdowns change, only this function needs to be modified.
+- Event Handling Abstraction (toggleOverlay, updateRemainingBookCount functions):
+  - Rationale: To encapsulate common event handling patterns, improving code readability and reducing redundancy.
+  - Benefits:
+    - toggleOverlay: Provides a consistent way to show and hide overlays.
+    - updateRemainingBookCount: Handles the logic for updating the "Show more" button and its remaining book count display.
+
+## How Abstraction Improved Maintainability and Extendability:
+
+- Modularity: The code is now broken down into smaller, independent modules (functions), making it easier to understand and modify.
+- Reusability: The abstracted functions can be reused in other parts of the application or in future projects.
+- Reduced Code Duplication: Common patterns are encapsulated in functions, reducing the amount of repetitive code.
+- Easier Testing: The modular structure makes it easier to write unit tests for individual functions.
+- Extendability: Adding new features or modifying existing ones is easier because the code is well-organized and modular. For example, adding a new filter to the search functionality would only require modifying the getBooks function.
+
+## Challenges Faced and How They Were Overcome:
+
+- My overall challenge that I really struggled with is maintaining the existing functionality of the code and I overcame this problem by thoroughly testing the code after each refactoring step.
+  So what I initially did was edit out the original code of the section that I am busy with and do my refactoring code and if it works then I will remove the original code.
+  The reasoning behind this is just in case the refactoring that I did is not working then I do have something to go back on.
+
+- I also struggled with where to start with refactoring the whole code and I resolved this by separating the data logic from the UI logic. This basically makes the code much more flexible and easier to work with.
+  For example in this code the data logic would refer to the Data Import and Initialization, Data Filtering and Manipulation and Data Access.
+  And then the UI logic would be DOM Manipulation, Event Handling and the Theme Management part.
+
+## Reflections on JavaScript Programming Concepts:
+
+This project has just shown me that I still have a long road ahead of me, in terms of constantly reverting back to previous notes and google how to do this and that. I do not know if I am just being hard on myself, but overall this excercise extremely helped me understand on where to being when it comes to Abstracting code and how important code readability and maintainability is for example:
+
+- Code Readability and Maintainability: This exercise emphasized the importance of writing clean, readable, and maintainable code, because I struggled understanding the original code but refactoring helps to improve code quality and it really reduces the technical debt.
