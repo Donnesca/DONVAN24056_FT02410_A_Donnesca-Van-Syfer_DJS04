@@ -32,10 +32,86 @@ function getBooks(filters = {}) {
   return result; // Return the filtered book list.
 }
 
+class BookPreview extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: "open" }); // Attach shadow DOM
+  }
+
+  connectedCallback() {
+    // Get attributes passed to the component
+    const image = this.getAttribute("image");
+    const title = this.getAttribute("title");
+    const author = this.getAttribute("author");
+
+    // Set the HTML structure
+    this.shadowRoot.innerHTML = `
+      <style>
+        .preview {
+          display: flex;
+          align-items: center;
+          background: white;
+          border-radius: 5px;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+          overflow: hidden;
+          cursor: pointer;
+          padding: 10px;
+          transition: box-shadow 0.3s ease;
+        }
+        .preview:hover {
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        .preview__image {
+          width: 50px;
+          height: 75px;
+          object-fit: cover;
+          margin-right: 10px;
+        }
+        .preview__info {
+          flex-grow: 1;
+        }
+        .preview__title {
+          font-size: 16px;
+          margin: 0;
+          font-weight: bold;
+        }
+        .preview__author {
+          font-size: 14px;
+          color: gray;
+        }
+      </style>
+
+      <div class="preview">
+        <img class="preview__image" src="${image}" alt="Book cover" />
+        <div class="preview__info">
+          <h3 class="preview__title">${title}</h3>
+          <div class="preview__author">${author}</div>
+        </div>
+      </div>
+    `;
+
+    // Add event listener for click (you can trigger events or actions here)
+    this.shadowRoot.querySelector(".preview").addEventListener("click", () => {
+      // Dispatch a custom event with the book's ID
+      this.dispatchEvent(
+        new CustomEvent("book-selected", {
+          detail: { id: this.getAttribute("id") },
+          bubbles: true, // Allows the event to bubble up in the DOM
+          composed: true, // Allows the event to pass through shadow DOM boundaries
+        })
+      );
+    });
+  }
+}
+
+// Define the custom element
+customElements.define("book-preview", BookPreview);
+
 // Function to create a book preview element (button).
 function createBookPreview(book) {
-  const element = document.createElement("button"); // Create a button element.
-  element.classList = "preview"; // Add the "preview" class for styling.
+  ////// const element = document.createElement("button"); // Create a button element.
+  const element = document.createElement("book-preview");
+  /* element.classList = "preview"; // Add the "preview" class for styling.
   element.setAttribute("data-preview", book.id); // Set a data attribute to store the book ID.
 
   // Set the inner HTML of the button to display book information.
@@ -46,7 +122,12 @@ function createBookPreview(book) {
             <div class="preview__author">${authors[book.author]}</div>
         </div>
     `;
+*/
 
+  element.setAttribute("image", book.image);
+  element.setAttribute("title", book.title);
+  element.setAttribute("author", authors[book.author]);
+  element.setAttribute("id", book.id);
   return element; // Return the created book preview element.
 }
 
@@ -128,6 +209,7 @@ if (
 
 // Update the initial remaining book count.
 updateRemainingBookCount(matches, page);
+/////////////////
 
 // Event listeners (refactored using abstractions)
 document
@@ -210,9 +292,14 @@ document.querySelector("[data-list-button]").addEventListener("click", () => {
 // Event listener for clicks on book list items (for preview).
 document
   .querySelector("[data-list-items]")
-  .addEventListener("click", (event) => {
+  .addEventListener("book-selected", (event) => {
+    const selectedBookId = event.detail.id; // Get the selected book ID.
+    const active = books.find((book) => book.id === selectedBookId); // Find the book based on the ID.
+
+    /*.addEventListener("click", (event) => {
     const pathArray = Array.from(event.path || event.composedPath());
     let active = null; // Variable to store the selected book object.
+
 
     // Traverse the DOM tree to find the clicked book preview element.
     for (const node of pathArray) {
@@ -221,7 +308,7 @@ document
         active = books.find((book) => book.id === node.dataset.preview);
         break; // Stop searching once the book is found.
       }
-    }
+    }*/
 
     // If a book preview was clicked.
     if (active) {
