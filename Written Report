@@ -1,45 +1,61 @@
-### Discussion and Reflection
+### Document the process of creating the Web Components.
 
-## Rationale Behind Refactoring Decisions:
+## Steps I used to create the BookPreview Web Component
 
-- Configuration Object (config):
-  - Rationale: To centralize configurable values. This makes it easier to modify parameters like BOOKS_PER_PAGE without searching through the entire codebase.
-  - Benefits: It Improves maintainability and reduces the risk of errors when changing configuration.
-- Data Abstraction (getBooks function):
-  - Rationale: To separate data retrieval and filtering logic from the UI. This allows for easier testing and modification of data handling.
-  - Benefits: This function encapsulates the book filtering logic. If in the future, the data source changes, or the filtering logic changes, only this function needs to be modified.
-- UI Component Abstraction (createBookPreview, displayBooks, populateDropdown functions):
-  - Rationale: To create reusable UI components, reducing code duplication and improving consistency.
-  - Benefits:
-    - createBookPreview: Simplifies the creation of book preview elements, making it easier to modify their appearance or behavior.
-    - displayBooks: Handles the logic for rendering a range of books, making pagination and search result display more efficient.
-    - populateDropdown: Handles the population of dropdown menus. If the data source of the dropdowns change, only this function needs to be modified.
-- Event Handling Abstraction (toggleOverlay, updateRemainingBookCount functions):
-  - Rationale: To encapsulate common event handling patterns, improving code readability and reducing redundancy.
-  - Benefits:
-    - toggleOverlay: Provides a consistent way to show and hide overlays.
-    - updateRemainingBookCount: Handles the logic for updating the "Show more" button and its remaining book count display.
+# Define the Custom Element
 
-## How Abstraction Improved Maintainability and Extendability:
+- I defined the BookPreview component by extending the HTMLElement class and using the customElements.define() method to register the component. The name of the component must contain a hyphen (e.g., book-preview), which is a requirement for custom elements.
 
-- Modularity: The code is now broken down into smaller, independent modules (functions), making it easier to understand and modify.
-- Reusability: The abstracted functions can be reused in other parts of the application or in future projects.
-- Reduced Code Duplication: Common patterns are encapsulated in functions, reducing the amount of repetitive code.
-- Easier Testing: The modular structure makes it easier to write unit tests for individual functions.
-- Extendability: Adding new features or modifying existing ones is easier because the code is well-organized and modular. For example, adding a new filter to the search functionality would only require modifying the getBooks function.
+# Attach Shadow DOM
 
-## Challenges Faced and How They Were Overcome:
+- Inside the constructor, I used the this.attachShadow({ mode: "open" }) method to create and attach a shadow DOM to the component and this encapsulates the component's styles and structure, preventing them from affecting other parts of the page and vice versa.
 
-- My overall challenge that I really struggled with is maintaining the existing functionality of the code and I overcame this problem by thoroughly testing the code after each refactoring step.
-  So what I initially did was edit out the original code of the section that I am busy with and do my refactoring code and if it works then I will remove the original code.
-  The reasoning behind this is just in case the refactoring that I did is not working then I do have something to go back on.
+# Define the Component’s Template
 
-- I also struggled with where to start with refactoring the whole code and I resolved this by separating the data logic from the UI logic. This basically makes the code much more flexible and easier to work with.
-  For example in this code the data logic would refer to the Data Import and Initialization, Data Filtering and Manipulation and Data Access.
-  And then the UI logic would be DOM Manipulation, Event Handling and the Theme Management part.
+- Within the connectedCallback() method (which is called when the element is added to the DOM), I used innerHTML to define the component's structure. I also included styling for the book preview card and its elements, such as the book image, title, and author.
 
-## Reflections on JavaScript Programming Concepts:
+# Attribute Handling
 
-This project has just shown me that I still have a long road ahead of me, in terms of constantly reverting back to previous notes and google how to do this and that. I do not know if I am just being hard on myself, but overall this excercise extremely helped me understand on where to being when it comes to Abstracting code and how important code readability and maintainability is for example:
+- I then retrieved the attributes (such as image, title, author, and id) from the custom element using this.getAttribute() and this allows you to dynamically populate the component's content when it is rendered on the page.
 
-- Code Readability and Maintainability: This exercise emphasized the importance of writing clean, readable, and maintainable code, because I struggled understanding the original code but refactoring helps to improve code quality and it really reduces the technical debt.
+# Event Handling
+
+- This component dispatches a custom event (book-selected) when the user clicks on the book preview. This event contains the book's ID, allowing parent components (such as the main application) to handle the click and display more details about the selected book.
+
+## Challenges Faced and Solutions
+
+- The issue I was facing was, when I added global styles to the page, the shadow DOM prevented the component from inheriting these styles.
+  I managed to fix it by explicitly defining the required styles within the shadow DOM and that provided control over the component's styling while maintaining encapsulation.
+
+## How to Use the BookPreview Component
+
+- Once the BookPreview component is defined, it can be used as a regular HTML element by including the custom tag <book-preview> in the HTML. Attributes such as image, title, author, and id must be set to provide the book data.
+- The component can also be created dynamically using JavaScript, allowing you to programmatically generate book previews based on data (such as from an API or data file).
+- The parent component or app needs to listen for the book-selected event, which is dispatched whenever a book is clicked. This allows you to respond to the user's selection (e.g., showing a modal with more book details).
+
+## Rationale Behind Selecting Certain Elements for Conversion into Web Components
+
+- Components that are used multiple times across the app (such as the book preview cards) were prime candidates for conversion. The goal was to create components that could be reused with different data without re-writing code for each instance.
+
+- Example: The BookPreview component can be used to display book data anywhere in the app—on the homepage, in search results, or in the book detail section.
+
+- Components that needed their own unique behavior or event handling (such as clicking on a card to trigger a detailed view) were also ideal candidates for Web Components. By encapsulating the behavior inside the component, event management becomes more straightforward.
+
+- Example: The BookPreview component dispatches a custom event (book-selected) whenever a user clicks on the card. This event is easily handled by the parent app without needing to manage logic inside each instance of the component.
+
+## Insights Gained: Advantages and Limitations of Using Web Components
+
+# Advantages of Using Web Components
+
+- Advantage: Web Components allow us to create self-contained, reusable components that can be used anywhere in the app. This eliminates redundancy and ensures that the code is modular and maintainable. When changes are needed, they can be made in one place, reducing the likelihood of bugs and inconsistencies.
+
+- I noticed that once the BookPreview component was built, it could be easily reused across multiple sections of the app without the need to rewrite or duplicate the code.
+
+# Limitations of Using Web Components
+
+- Styling Limitations:
+
+  - Limitation: The first thing that I noticed and also struggled a bit with was the styling section for my dark theme.
+  - While the Shadow DOM is great for encapsulation, it can also make global theming (like dark mode) harder to implement across the app. Since each component is isolated, applying a consistent theme across multiple components requires additional effort.
+
+  - So I fixed this issue by using CSS custom properties (variables) to make certain styles (like colors) more easily adjustable globally. This allowed me to spread theme changes to the Web Components by updating the CSS variables at the root level.

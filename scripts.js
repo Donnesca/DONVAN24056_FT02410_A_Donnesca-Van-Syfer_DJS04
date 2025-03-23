@@ -32,10 +32,11 @@ function getBooks(filters = {}) {
   return result; // Return the filtered book list.
 }
 
+// Custom Element: BookPreview - displays a single book preview.
 class BookPreview extends HTMLElement {
   constructor() {
     super();
-    this.attachShadow({ mode: "open" }); // Attach shadow DOM
+    this.attachShadow({ mode: "open" }); // Attach shadow DOM for encapsulation.
   }
 
   connectedCallback() {
@@ -44,7 +45,7 @@ class BookPreview extends HTMLElement {
     const title = this.getAttribute("title");
     const author = this.getAttribute("author");
 
-    // Set the HTML structure
+    // Set the HTML structure and styling for the book preview.
     this.shadowRoot.innerHTML = `
       <style>
         .preview {
@@ -90,13 +91,13 @@ class BookPreview extends HTMLElement {
       </div>
     `;
 
-    // Add event listener for click (you can trigger events or actions here)
+    // Add event listener for click on the book preview.
     this.shadowRoot.querySelector(".preview").addEventListener("click", () => {
-      // Dispatch a custom event with the book's ID
+      // Dispatch a custom event with the book's ID, allowing parent components to handle the click
       this.dispatchEvent(
         new CustomEvent("book-selected", {
           detail: { id: this.getAttribute("id") },
-          bubbles: true, // Allows the event to bubble up in the DOM
+          bubbles: true, // Allows the event to bubble up in the DOM tree
           composed: true, // Allows the event to pass through shadow DOM boundaries
         })
       );
@@ -104,36 +105,24 @@ class BookPreview extends HTMLElement {
   }
 }
 
-// Define the custom element
+// Define the custom element "book-preview" for use in HTML.
 customElements.define("book-preview", BookPreview);
 
-// Function to create a book preview element (button).
+// Function to create a book preview element (custom element) for a given book.
 function createBookPreview(book) {
-  ////// const element = document.createElement("button"); // Create a button element.
-  const element = document.createElement("book-preview");
-  /* element.classList = "preview"; // Add the "preview" class for styling.
-  element.setAttribute("data-preview", book.id); // Set a data attribute to store the book ID.
+  const element = document.createElement("book-preview"); // Create an instance of the custom element.
 
-  // Set the inner HTML of the button to display book information.
-  element.innerHTML = `
-        <img class="preview__image" src="${book.image}" />
-        <div class="preview__info">
-            <h3 class="preview__title">${book.title}</h3>
-            <div class="preview__author">${authors[book.author]}</div>
-        </div>
-    `;
-*/
-
+  // Set attributes for the book preview element based on the book data.
   element.setAttribute("image", book.image);
   element.setAttribute("title", book.title);
-  element.setAttribute("author", authors[book.author]);
-  element.setAttribute("id", book.id);
+  element.setAttribute("author", authors[book.author]); // Retrieve author name from the authors object.
+  element.setAttribute("id", book.id); // Set the book ID as an attribute.
   return element; // Return the created book preview element.
 }
 
-// Function: Toggles the visibility of an overlay element.
+// Function: Toggles the visibility of an overlay element (modal).
 function toggleOverlay(overlayElement, isOpen) {
-  overlayElement.open = isOpen; // Set the "open" property of the overlay element.
+  overlayElement.open = isOpen; // Set the "open" property of the overlay element to show or hide it.
 }
 
 // Function: Updates the remaining book count and "Show more" button state.
@@ -209,22 +198,24 @@ if (
 
 // Update the initial remaining book count.
 updateRemainingBookCount(matches, page);
-/////////////////
 
 // Event listeners (refactored using abstractions)
 document
-  .querySelector("[data-search-cancel]")
-  .addEventListener("click", () =>
-    toggleOverlay(document.querySelector("[data-search-overlay]"), false)
+  .querySelector("[data-search-cancel]") // Select the search cancel button.
+  .addEventListener(
+    "click",
+    () => toggleOverlay(document.querySelector("[data-search-overlay]"), false) // Close the search overlay when the cancel button is clicked.
   );
 document
-  .querySelector("[data-settings-cancel]")
-  .addEventListener("click", () =>
-    toggleOverlay(document.querySelector("[data-settings-overlay]"), false)
+  .querySelector("[data-settings-cancel]") // Select the settings cancel button.
+  .addEventListener(
+    "click",
+    () =>
+      toggleOverlay(document.querySelector("[data-settings-overlay]"), false) // Close the settings overlay when the cancel button is clicked.
   );
 document.querySelector("[data-header-search]").addEventListener("click", () => {
-  toggleOverlay(document.querySelector("[data-search-overlay]"), true);
-  document.querySelector("[data-search-title]").focus();
+  toggleOverlay(document.querySelector("[data-search-overlay]"), true); // Close the settings overlay when the cancel button is clicked.
+  document.querySelector("[data-search-title]").focus(); // Focus on the search title input for user convenience.
 });
 document
   .querySelector("[data-header-settings]")
@@ -232,14 +223,15 @@ document
     toggleOverlay(document.querySelector("[data-settings-overlay]"), true)
   );
 document
-  .querySelector("[data-list-close]")
-  .addEventListener("click", () =>
-    toggleOverlay(document.querySelector("[data-list-active]"), false)
+  .querySelector("[data-list-close]") // Select the list close button.
+  .addEventListener(
+    "click",
+    () => toggleOverlay(document.querySelector("[data-list-active]"), false) // Close the book preview overlay when the list close button is clicked.
   );
 
 // Event listener for theme settings form submission.
 document
-  .querySelector("[data-settings-form]")
+  .querySelector("[data-settings-form]") // Select the settings form.
   .addEventListener("submit", (event) => {
     event.preventDefault(); // Prevent the default form submission.
     const formData = new FormData(event.target); // Get form data.
@@ -253,7 +245,7 @@ document
 
 // Event listener for search form submission.
 document
-  .querySelector("[data-search-form]")
+  .querySelector("[data-search-form]") // Select the search form.
   .addEventListener("submit", (event) => {
     event.preventDefault(); // Prevent default form submission.
     const formData = new FormData(event.target); // Get form data.
@@ -296,33 +288,19 @@ document
     const selectedBookId = event.detail.id; // Get the selected book ID.
     const active = books.find((book) => book.id === selectedBookId); // Find the book based on the ID.
 
-    /*.addEventListener("click", (event) => {
-    const pathArray = Array.from(event.path || event.composedPath());
-    let active = null; // Variable to store the selected book object.
-
-
-    // Traverse the DOM tree to find the clicked book preview element.
-    for (const node of pathArray) {
-      if (node?.dataset?.preview) {
-        // Find the book object in the 'books' array based on the 'data-preview' ID.
-        active = books.find((book) => book.id === node.dataset.preview);
-        break; // Stop searching once the book is found.
-      }
-    }*/
-
     // If a book preview was clicked.
     if (active) {
       // Open the book preview modal/dialog.
-      document.querySelector("[data-list-active]").open = true;
-      document.querySelector("[data-list-blur]").src = active.image;
-      document.querySelector("[data-list-image]").src = active.image;
+      document.querySelector("[data-list-active]").open = true; // Open the preview modal
+      document.querySelector("[data-list-blur]").src = active.image; // Set the blurred background image.
+      document.querySelector("[data-list-image]").src = active.image; // Set the ain book image.
 
       // Set the book title, subtitle, and description.
-      document.querySelector("[data-list-title]").innerText = active.title;
+      document.querySelector("[data-list-title]").innerText = active.title; // Set the book title.
       document.querySelector("[data-list-subtitle]").innerText = `${
         authors[active.author]
-      } (${new Date(active.published).getFullYear()})`;
+      } (${new Date(active.published).getFullYear()})`; // Set the author and publication year.
       document.querySelector("[data-list-description]").innerText =
-        active.description;
+        active.description; // Set the book description.
     }
   });
